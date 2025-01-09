@@ -4,17 +4,60 @@
  */
 package view;
 
+import controller.ProductController;
+import controller.TransactionController;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
+import javax.swing.table.TableModel;
+import model.Product;
+import model.PurchaseItemDto;
+
 /**
  *
  * @author Kevin Philips Tanamas
  */
 public class CashierView extends javax.swing.JFrame {
-
-    /**
-     * Creates new form CashierView
-     */
+    private final ProductController productController = new ProductController();
+    private final TransactionController transactionController = new TransactionController();
+    
+    Product selectedProduct = null;
+    List<Product> products;
+    List<PurchaseItemDto> purchaseItemDtos = new ArrayList<>();
+    
     public CashierView() {
         initComponents();
+        setComponent(false);
+        reloadTables();
+    }
+    
+   public void setComponent(boolean value){
+        inputQuantity.setEnabled(value);
+        buttonAddChart.setEnabled(value);
+        buttonClearChart.setEnabled(false);
+        buttonConfirm.setEnabled(false);
+   }
+   
+    public TableProductView mapToTableProduct(String query) {
+        this.products = productController.read(query);
+        this.products = this.products.stream()
+                           .filter(p -> p.getStock() > 0)
+                           .collect(Collectors.toList());
+        if(this.products.isEmpty()){
+            System.out.println("Product Kosong");
+        }
+        return new TableProductView(this.products);
+    }
+
+    public ShoppingCartView mapToShoppingChart() {
+        return new ShoppingCartView(this.purchaseItemDtos);
+    }
+
+    public void reloadTables() {
+        productTable.setModel(mapToTableProduct(""));
+        tableChart.setModel(mapToShoppingChart());
     }
 
     /**
@@ -29,21 +72,22 @@ public class CashierView extends javax.swing.JFrame {
         background = new javax.swing.JPanel();
         header = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        reportButton = new javax.swing.JButton();
         stockButton = new javax.swing.JButton();
         tableScrollPanel = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        productTable = new javax.swing.JTable();
         labelNamaProduk = new javax.swing.JLabel();
         inputQuantity = new javax.swing.JTextField();
         buttonAddChart = new javax.swing.JButton();
         scrollPanelChart = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tableChart = new javax.swing.JTable();
         buttonConfirm = new javax.swing.JButton();
         buttonClearChart = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1004, 836));
 
         background.setBackground(new java.awt.Color(204, 204, 204));
+        background.setPreferredSize(new java.awt.Dimension(1004, 836));
 
         header.setBackground(new java.awt.Color(255, 153, 51));
         header.setPreferredSize(new java.awt.Dimension(1000, 100));
@@ -52,16 +96,8 @@ public class CashierView extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Warkop PBO");
 
-        reportButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        reportButton.setText("Report");
-        reportButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reportButtonActionPerformed(evt);
-            }
-        });
-
         stockButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        stockButton.setText("Stock");
+        stockButton.setText("Product");
         stockButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 stockButtonActionPerformed(evt);
@@ -75,9 +111,7 @@ public class CashierView extends javax.swing.JFrame {
             .addGroup(headerLayout.createSequentialGroup()
                 .addGap(363, 363, 363)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 160, Short.MAX_VALUE)
-                .addComponent(reportButton, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 258, Short.MAX_VALUE)
                 .addComponent(stockButton, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(29, 29, 29))
         );
@@ -86,14 +120,12 @@ public class CashierView extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerLayout.createSequentialGroup()
                 .addContainerGap(35, Short.MAX_VALUE)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(reportButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(stockButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(stockButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addGap(25, 25, 25))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        productTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -104,15 +136,25 @@ public class CashierView extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        tableScrollPanel.setViewportView(jTable1);
+        productTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                productTableMouseClicked(evt);
+            }
+        });
+        tableScrollPanel.setViewportView(productTable);
 
         labelNamaProduk.setBackground(new java.awt.Color(0, 0, 0));
         labelNamaProduk.setForeground(new java.awt.Color(0, 0, 0));
         labelNamaProduk.setText("Nama Produk X");
 
         buttonAddChart.setText("Tambah ke Keranjang");
+        buttonAddChart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonAddChartActionPerformed(evt);
+            }
+        });
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tableChart.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -123,11 +165,21 @@ public class CashierView extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        scrollPanelChart.setViewportView(jTable2);
+        scrollPanelChart.setViewportView(tableChart);
 
         buttonConfirm.setText("Konfirmasi Transaksi");
+        buttonConfirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonConfirmActionPerformed(evt);
+            }
+        });
 
         buttonClearChart.setText("Kosongkan Keranjang");
+        buttonClearChart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonClearChartActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout backgroundLayout = new javax.swing.GroupLayout(background);
         background.setLayout(backgroundLayout);
@@ -168,12 +220,12 @@ public class CashierView extends javax.swing.JFrame {
                     .addComponent(buttonAddChart))
                 .addGap(18, 18, 18)
                 .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollPanelChart, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(backgroundLayout.createSequentialGroup()
                         .addComponent(buttonConfirm)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonClearChart)))
-                .addContainerGap(99, Short.MAX_VALUE))
+                        .addComponent(buttonClearChart))
+                    .addComponent(scrollPanelChart, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -190,16 +242,60 @@ public class CashierView extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void reportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reportButtonActionPerformed
-        // TODO add your handling code here:
-        CashierView cv = new CashierView();
-        this.dispose();
-        cv.setVisible(true);
-    }//GEN-LAST:event_reportButtonActionPerformed
-
     private void stockButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stockButtonActionPerformed
         // TODO add your handling code here:
+        ProductView pv = new ProductView();
+        this.dispose();
+        pv.setVisible(true);
     }//GEN-LAST:event_stockButtonActionPerformed
+
+    private void productTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productTableMouseClicked
+        // TODO add your handling code here:
+        inputQuantity.setText("");
+        setComponent(true);
+        int clickedRow = productTable.getSelectedRow();
+        System.out.println("click row: "+clickedRow);
+        System.out.println("Products List: "+products);
+        if (products == null || products.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Produk tidak ditemukan atau kosong.");
+            return;
+        }
+        selectedProduct = products.get(clickedRow);
+        System.out.println("selected product: " +selectedProduct);
+        labelNamaProduk.setText(selectedProduct.getName());
+    }//GEN-LAST:event_productTableMouseClicked
+
+    private void buttonAddChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAddChartActionPerformed
+        // TODO add your handling code here:
+        buttonConfirm.setEnabled(true);
+        buttonClearChart.setEnabled(true);
+        PurchaseItemDto purchaseItemDto = new PurchaseItemDto(selectedProduct, Integer.valueOf(inputQuantity.getText()));
+        purchaseItemDtos.add(purchaseItemDto);
+        System.out.println("Items in cart: " + purchaseItemDtos.size());
+        System.out.println("Last added item: " + purchaseItemDto.getProduct().getName());
+        reloadTables();
+    }//GEN-LAST:event_buttonAddChartActionPerformed
+
+    private void buttonConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfirmActionPerformed
+        // TODO add your handling code here:
+        String total = transactionController.doProductPurchaseTransaction(purchaseItemDtos);
+        purchaseItemDtos.clear();
+        reloadTables();
+        JOptionPane.showMessageDialog(
+            null,
+            "Transaksi Berhasil, Total Transaksi: " + total,
+            "Success",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }//GEN-LAST:event_buttonConfirmActionPerformed
+
+    private void buttonClearChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonClearChartActionPerformed
+        // TODO add your handling code here:
+        buttonConfirm.setEnabled(false);
+        buttonClearChart.setEnabled(false);
+        purchaseItemDtos.clear();
+        reloadTables();
+    }//GEN-LAST:event_buttonClearChartActionPerformed
 
     /**
      * @param args the command line arguments
@@ -244,12 +340,11 @@ public class CashierView extends javax.swing.JFrame {
     private javax.swing.JPanel header;
     private javax.swing.JTextField inputQuantity;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
     private javax.swing.JLabel labelNamaProduk;
-    private javax.swing.JButton reportButton;
+    private javax.swing.JTable productTable;
     private javax.swing.JScrollPane scrollPanelChart;
     private javax.swing.JButton stockButton;
+    private javax.swing.JTable tableChart;
     private javax.swing.JScrollPane tableScrollPanel;
     // End of variables declaration//GEN-END:variables
 }

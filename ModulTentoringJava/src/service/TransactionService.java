@@ -37,9 +37,10 @@ public class TransactionService {
             Timestamp transactionDatetime = new Timestamp(System.currentTimeMillis());
             
             // Membuat koneksi ke database dan menonaktifkan auto-commit
-            DbConnection.makeConnection();
+            DbConnection dbConnection = new DbConnection();
+            dbConnection.makeConnection();
             DbConnection.CON.setAutoCommit(false);
-            
+
             // Menghitung total transaksi
             BigDecimal total = countTotalTransaction(purchasedItems);
             System.out.println("Total Transaksi: " + total);

@@ -12,6 +12,7 @@ public class ProductController {
     }
     
     public List<Product> read(String searchKey){
+        System.out.println("Fetched products: " + productDao.toString());
         return productDao.read(searchKey);
     }
     
