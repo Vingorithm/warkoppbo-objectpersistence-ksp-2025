@@ -40,12 +40,14 @@ public class CashierView extends javax.swing.JFrame {
         buttonConfirm.setEnabled(false);
    }
    
-    public TableProductView mapToTableProduct(String query) {
+   public TableProductView mapToTableProduct(String query) {
+        // Mendapatkan daftar produk berdasarkan query dari ProductController.
         this.products = productController.read(query);
+        // Menyaring produk untuk hanya menampilkan yang memiliki stok lebih dari 0.
         this.products = this.products.stream()
-                           .filter(p -> p.getStock() > 0)
-                           .collect(Collectors.toList());
-        if(this.products.isEmpty()){
+                           .filter(p -> p.getStock() > 0) // Hanya produk dengan stok > 0.
+                           .collect(Collectors.toList()); // Mengumpulkan hasil filter ke dalam daftar baru.
+        if (this.products.isEmpty()) {
             System.out.println("Product Kosong");
         }
         return new TableProductView(this.products);
@@ -56,7 +58,7 @@ public class CashierView extends javax.swing.JFrame {
     }
 
     public void reloadTables() {
-        productTable.setModel(mapToTableProduct(""));
+        productTable.setModel(mapToTableProduct("")); // Menggunakan query kosong untuk memuat semua produk.
         tableChart.setModel(mapToShoppingChart());
     }
 
@@ -253,27 +255,41 @@ public class CashierView extends javax.swing.JFrame {
         // TODO add your handling code here:
         inputQuantity.setText("");
         setComponent(true);
+
+        // Mendapatkan indeks baris yang diklik oleh pengguna pada tabel produk.
         int clickedRow = productTable.getSelectedRow();
-        System.out.println("click row: "+clickedRow);
-        System.out.println("Products List: "+products);
+        System.out.println("click row: " + clickedRow);
+        System.out.println("Products List: " + products);
+
         if (products == null || products.isEmpty()) {
+            // Menampilkan pesan dialog kepada pengguna jika produk tidak ditemukan atau kosong.
             JOptionPane.showMessageDialog(this, "Produk tidak ditemukan atau kosong.");
             return;
         }
+
+        // Mengambil produk yang dipilih berdasarkan indeks baris yang diklik pengguna.
         selectedProduct = products.get(clickedRow);
-        System.out.println("selected product: " +selectedProduct);
+        System.out.println("selected product: " + selectedProduct);
+
+        // Menampilkan nama produk yang dipilih pada label
         labelNamaProduk.setText(selectedProduct.getName());
     }//GEN-LAST:event_productTableMouseClicked
 
     private void buttonAddChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAddChartActionPerformed
         // TODO add your handling code here:
-        buttonConfirm.setEnabled(true);
-        buttonClearChart.setEnabled(true);
-        PurchaseItemDto purchaseItemDto = new PurchaseItemDto(selectedProduct, Integer.valueOf(inputQuantity.getText()));
-        purchaseItemDtos.add(purchaseItemDto);
-        System.out.println("Items in cart: " + purchaseItemDtos.size());
-        System.out.println("Last added item: " + purchaseItemDto.getProduct().getName());
-        reloadTables();
+         buttonConfirm.setEnabled(true);
+         buttonClearChart.setEnabled(true);
+
+         // Membuat objek `PurchaseItemDto` berdasarkan produk yang dipilih dan jumlah yang dimasukkan pengguna.
+         // `inputQuantity.getText()` mengambil jumlah yang diinput oleh pengguna, dan diubah menjadi integer.
+         PurchaseItemDto purchaseItemDto = new PurchaseItemDto(selectedProduct, Integer.valueOf(inputQuantity.getText()));
+         purchaseItemDtos.add(purchaseItemDto);
+
+         System.out.println("Items in cart: " + purchaseItemDtos.size());
+         System.out.println("Last added item: " + purchaseItemDto.getProduct().getName());
+
+         // Memperbarui tabel di UI untuk mencerminkan perubahan pada data.
+         reloadTables();
     }//GEN-LAST:event_buttonAddChartActionPerformed
 
     private void buttonConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfirmActionPerformed
