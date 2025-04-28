@@ -40,13 +40,17 @@ public class CashierView extends javax.swing.JFrame {
         buttonConfirm.setEnabled(false);
    }
    
-   public TableProductView mapToTableProduct(String query) {
-        // Mendapatkan daftar produk berdasarkan query dari ProductController.
-        this.products = productController.read(query);
-        // Menyaring produk untuk hanya menampilkan yang memiliki stok lebih dari 0.
-        this.products = this.products.stream()
-                           .filter(p -> p.getStock() > 0) // Hanya produk dengan stok > 0.
-                           .collect(Collectors.toList()); // Mengumpulkan hasil filter ke dalam daftar baru.
+    public TableProductView mapToTableProduct(String query) {
+        // Ambil semua produk dari controller berdasarkan query
+        List<Product> allProducts = productController.read(query);
+        List<Product> filteredProducts = new ArrayList<>();
+
+        for (Product p : allProducts) {
+            if (p.getStock() > 0) {
+                filteredProducts.add(p);
+            }
+        }
+        this.products = filteredProducts;
         if (this.products.isEmpty()) {
             System.out.println("Product Kosong");
         }
@@ -58,7 +62,7 @@ public class CashierView extends javax.swing.JFrame {
     }
 
     public void reloadTables() {
-        productTable.setModel(mapToTableProduct("")); // Menggunakan query kosong untuk memuat semua produk.
+        productTable.setModel(mapToTableProduct(""));
         tableChart.setModel(mapToShoppingChart());
     }
 
@@ -86,7 +90,6 @@ public class CashierView extends javax.swing.JFrame {
         buttonClearChart = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1004, 836));
 
         background.setBackground(new java.awt.Color(204, 204, 204));
         background.setPreferredSize(new java.awt.Dimension(1004, 836));
@@ -95,7 +98,6 @@ public class CashierView extends javax.swing.JFrame {
         header.setPreferredSize(new java.awt.Dimension(1000, 100));
 
         jLabel1.setFont(new java.awt.Font("Perpetua", 1, 48)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Warkop PBO");
 
         stockButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -146,8 +148,7 @@ public class CashierView extends javax.swing.JFrame {
         tableScrollPanel.setViewportView(productTable);
 
         labelNamaProduk.setBackground(new java.awt.Color(0, 0, 0));
-        labelNamaProduk.setForeground(new java.awt.Color(0, 0, 0));
-        labelNamaProduk.setText("Nama Produk X");
+        labelNamaProduk.setText("Nama Produk");
 
         buttonAddChart.setText("Tambah ke Keranjang");
         buttonAddChart.addActionListener(new java.awt.event.ActionListener() {
@@ -294,7 +295,7 @@ public class CashierView extends javax.swing.JFrame {
 
     private void buttonConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfirmActionPerformed
         // TODO add your handling code here:
-        String total = transactionController.doProductPurchaseTransaction(purchaseItemDtos);
+        String total = transactionController.create(purchaseItemDtos);
         purchaseItemDtos.clear();
         reloadTables();
         JOptionPane.showMessageDialog(

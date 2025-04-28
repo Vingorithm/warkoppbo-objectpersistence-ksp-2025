@@ -13,10 +13,6 @@ import model.Product;
 public class ProductDao {
     protected DbConnection dbCon = new DbConnection();
     protected Connection con;
-    
-     // Query untuk batch update
-    private static final String UPDATE_QUERY = 
-        "UPDATE product SET name = ?, type = ?, price = ?, stock = ? WHERE product_id = ?";
 
     public void create(Product product){
         con = dbCon.makeConnection();
@@ -142,7 +138,9 @@ public class ProductDao {
         PreparedStatement statement = null;
         try {
             // Menyiapkan query SQL untuk melakukan batch update
-            statement = connection.prepareStatement(UPDATE_QUERY);
+            statement = connection.prepareStatement(
+                    "UPDATE product SET name = ?, type = ?, price = ?, stock = ? WHERE product_id = ?"
+            );
 
             // Iterasi untuk setiap produk dalam daftar
             for (Product product : products) {

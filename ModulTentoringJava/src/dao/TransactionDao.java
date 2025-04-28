@@ -8,21 +8,21 @@ import java.sql.PreparedStatement;
 import model.Transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
+import model.Product;
 
 /**
  *
  * @author Kevin Philips Tanamas
  */
 public class TransactionDao {
-    // SQL query untuk menyisipkan data transaksi
-    private static final String INSERT_TRANSACTION_ALL = "INSERT INTO transaction (id, date, total, cashier, buyer) values (?, ?, ?, ?, ?)";
-
     // Method untuk membuat transaksi baru
-    public void create(Connection connection, Transaction transaction) throws SQLException {
+    public void batchCreate(Connection connection, Transaction transaction) throws SQLException {
         PreparedStatement statement = null;
         try {
             // Menyiapkan statement untuk eksekusi query INSERT
-            statement = connection.prepareStatement(INSERT_TRANSACTION_ALL);
+            String sql = "INSERT INTO transaction (id, date, total, cashier, buyer) values (?, ?, ?, ?, ?)";
+            statement = connection.prepareStatement(sql);
             
             // Menyusun parameter yang akan disisipkan ke dalam query
             statement.setString(1, transaction.getTransactionId()); // Mengatur ID transaksi
@@ -35,6 +35,26 @@ public class TransactionDao {
             statement.executeUpdate();
         } finally {
             // Menutup statement setelah eksekusi
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+    
+    public void create(Connection connection, Transaction transaction) throws SQLException {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+
+            String sql = "INSERT INTO transaction (id, date, total, cashier, buyer) VALUES (" +
+                    "'" + transaction.getTransactionId() + "', " +
+                    "'" + transaction.getTransactionDate() + "', " +
+                    transaction.getTotal() + ", " +
+                    "'" + transaction.getCashier() + "', " +
+                    "'" + transaction.getBuyer() + "')";
+
+            statement.executeUpdate(sql);
+        } finally {
             if (statement != null) {
                 statement.close();
             }
