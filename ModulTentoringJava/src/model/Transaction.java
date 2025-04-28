@@ -23,8 +23,8 @@ public class Transaction {
         this.transactionId = transactionId;
         this.transactionDate = transactionDate;
         this.total = total;
-        this.cashier = "cashier-dummy"; // Nilai default untuk kasir
-        this.buyer = "buyer-dummy"; // Nilai default untuk pembeli
+        this.cashier = "cashier-dummy"; // Ini bisa diisi nama kalian
+        this.buyer = "buyer-dummy"; // Ini bisa diisi npm kalian
     }
 
     // Getter dan Setter untuk transactionId

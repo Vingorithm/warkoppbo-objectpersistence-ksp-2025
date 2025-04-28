@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import model.PurchaseItemDto;
 import model.Product;
 import model.Transaction;
@@ -22,7 +21,6 @@ public class TransactionService {
 
     public String productPurchase(List<PurchaseItemDto> purchasedItems) {
         try {
-            UUID transactionId = UUID.randomUUID(); // Ini buat bikin ID otomatis
             Timestamp transactionDatetime = new Timestamp(System.currentTimeMillis());
             
             DbConnection dbConnection = new DbConnection();
@@ -33,22 +31,19 @@ public class TransactionService {
             System.out.println("Total Transaksi: " + total);
 
             Transaction transaction = new Transaction();
-            transaction.setTransactionId(transactionId.toString());
             transaction.setTransactionDate(transactionDatetime);
             transaction.setTotal(total);
-            transaction.setBuyer("buyer-dummy");
-            transaction.setCashier("cashier-dummy");
-            transactionDao.create(DbConnection.CON, transaction);
+            transaction.setBuyer("buyer-dummy"); // Ini bisa diisi nama kalian
+            transaction.setCashier("cashier-dummy"); // Ini bisa diisi npm kalian
+            
+            int transactionId = transactionDao.create(DbConnection.CON, transaction);
 
             List<TransactionDetail> transactionDetails = new ArrayList<>();
             List<Product> products = new ArrayList<>();
 
             for (PurchaseItemDto item : purchasedItems) {
-                UUID transactionDetailId = UUID.randomUUID();
-
                 TransactionDetail transactionDetail = new TransactionDetail();
-                transactionDetail.setTransactionDetailId(transactionDetailId.toString());
-                transactionDetail.setTransactionId(transactionId.toString());
+                transactionDetail.setTransactionId(transactionId);
                 transactionDetail.setProductId(item.getProduct().getId());
                 transactionDetail.setQuantityPurchased(item.getQuantityPurchased());
                 transactionDetail.setSubTotal(hitungSubTotalTransaksi(item));
@@ -58,10 +53,8 @@ public class TransactionService {
                 product.setStock(product.getStock() - item.getQuantityPurchased());
                 products.add(product);
             }
-
             transactionDetailDao.create(DbConnection.CON, transactionDetails);
             productDao.batchUpdate(DbConnection.CON, products);
-
             DbConnection.CON.commit();
             DbConnection.CON.close();
             return String.valueOf(total);

@@ -41,19 +41,47 @@ public class TransactionDao {
         }
     }
     
-    public void create(Connection connection, Transaction transaction) throws SQLException {
+//    public void create(Connection connection, Transaction transaction) throws SQLException {
+//        Statement statement = null;
+//        try {
+//            statement = connection.createStatement();
+//
+//            String sql = "INSERT INTO transaction (id, date, total, cashier, buyer) VALUES (" +
+//                    "'" + transaction.getTransactionId() + "', " +
+//                    "'" + transaction.getTransactionDate() + "', " +
+//                    transaction.getTotal() + ", " +
+//                    "'" + transaction.getCashier() + "', " +
+//                    "'" + transaction.getBuyer() + "')";
+//
+//            statement.executeUpdate(sql);
+//        } finally {
+//            if (statement != null) {
+//                statement.close();
+//            }
+//        }
+//    }
+    
+    public int create(Connection connection, Transaction transaction) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
 
-            String sql = "INSERT INTO transaction (id, date, total, cashier, buyer) VALUES (" +
-                    "'" + transaction.getTransactionId() + "', " +
-                    "'" + transaction.getTransactionDate() + "', " +
-                    transaction.getTotal() + ", " +
-                    "'" + transaction.getCashier() + "', " +
-                    "'" + transaction.getBuyer() + "')";
+            String sql = "INSERT INTO transaction (date, total, cashier, buyer) VALUES (" +
+                         "'" + transaction.getTransactionDate() + "', " +
+                         transaction.getTotal() + ", " +
+                         "'" + transaction.getCashier() + "', " +
+                         "'" + transaction.getBuyer() + "'" +
+                         ")";
 
-            statement.executeUpdate(sql);
+            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+
+            try (var generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Tidak ada ID yang didapatkan");
+                }
+            }
         } finally {
             if (statement != null) {
                 statement.close();

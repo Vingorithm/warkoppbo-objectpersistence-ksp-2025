@@ -7,8 +7,8 @@ package model;
 import java.math.BigDecimal;
 
 public class TransactionDetail {
-    private String transactionDetailId;
-    private String transactionId;
+    private Integer transactionDetailId;
+    private Integer transactionId;
     private Integer productId;
     private Integer quantityPurchased;
     private BigDecimal subTotal;
@@ -16,7 +16,7 @@ public class TransactionDetail {
     public TransactionDetail() {
     }
     
-    public TransactionDetail(String transactionDetailId, String transactionId, Integer productId, 
+    public TransactionDetail(Integer transactionDetailId, Integer transactionId, Integer productId, 
                               Integer quantityPurchased, BigDecimal subTotal) {
         this.transactionDetailId = transactionDetailId;
         this.transactionId = transactionId;
@@ -26,20 +26,20 @@ public class TransactionDetail {
     }
 
     // Getter dan Setter untuk transactionDetailId
-    public String getTransactionDetailId() {
+    public Integer getTransactionDetailId() {
         return transactionDetailId;
     }
 
-    public void setTransactionDetailId(String transactionDetailId) {
+    public void setTransactionDetailId(Integer transactionDetailId) {
         this.transactionDetailId = transactionDetailId;
     }
 
     // Getter dan Setter untuk transactionId
-    public String getTransactionId() {
+    public Integer getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(String transactionId) {
+    public void setTransactionId(Integer transactionId) {
         this.transactionId = transactionId;
     }
 
