@@ -7,11 +7,8 @@ package view;
 import controller.ProductController;
 import controller.TransactionController;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
 import model.Product;
 import model.PurchaseItemDto;
 
@@ -35,6 +32,7 @@ public class CashierView extends javax.swing.JFrame {
     
    public void setComponent(boolean value){
         inputQuantity.setEnabled(value);
+        inputPembeli.setEnabled(value);
         buttonAddChart.setEnabled(value);
         buttonClearChart.setEnabled(false);
         buttonConfirm.setEnabled(false);
@@ -88,6 +86,8 @@ public class CashierView extends javax.swing.JFrame {
         tableChart = new javax.swing.JTable();
         buttonConfirm = new javax.swing.JButton();
         buttonClearChart = new javax.swing.JButton();
+        inputPembeli = new javax.swing.JTextField();
+        labelNamaPembeli = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -184,6 +184,15 @@ public class CashierView extends javax.swing.JFrame {
             }
         });
 
+        inputPembeli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inputPembeliActionPerformed(evt);
+            }
+        });
+
+        labelNamaPembeli.setBackground(new java.awt.Color(0, 0, 0));
+        labelNamaPembeli.setText("Nama Pembeli");
+
         javax.swing.GroupLayout backgroundLayout = new javax.swing.GroupLayout(background);
         background.setLayout(backgroundLayout);
         backgroundLayout.setHorizontalGroup(
@@ -199,15 +208,20 @@ public class CashierView extends javax.swing.JFrame {
                         .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(scrollPanelChart, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(backgroundLayout.createSequentialGroup()
-                                .addComponent(labelNamaProduk)
+                                .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(labelNamaProduk)
+                                    .addComponent(labelNamaPembeli))
                                 .addGap(41, 41, 41)
-                                .addComponent(inputQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(buttonAddChart, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(backgroundLayout.createSequentialGroup()
+                                        .addComponent(inputQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(buttonAddChart, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(inputPembeli))))
                         .addGap(18, 18, 18)
-                        .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(buttonConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(buttonClearChart, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(buttonConfirm, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
+                            .addComponent(buttonClearChart, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE))))
                 .addGap(34, 34, 34))
         );
         backgroundLayout.setVerticalGroup(
@@ -221,14 +235,20 @@ public class CashierView extends javax.swing.JFrame {
                     .addComponent(labelNamaProduk)
                     .addComponent(inputQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonAddChart))
-                .addGap(18, 18, 18)
                 .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(backgroundLayout.createSequentialGroup()
-                        .addComponent(buttonConfirm)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonClearChart))
+                        .addGap(18, 18, 18)
+                        .addComponent(buttonConfirm))
+                    .addGroup(backgroundLayout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(inputPembeli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelNamaPembeli))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(buttonClearChart)
                     .addComponent(scrollPanelChart, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(85, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -294,16 +314,20 @@ public class CashierView extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonAddChartActionPerformed
 
     private void buttonConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonConfirmActionPerformed
-        // TODO add your handling code here:
-        String total = transactionController.create(purchaseItemDtos);
-        purchaseItemDtos.clear();
-        reloadTables();
-        JOptionPane.showMessageDialog(
-            null,
-            "Transaksi Berhasil, Total Transaksi: " + total,
-            "Success",
-            JOptionPane.INFORMATION_MESSAGE
-        );
+       String total = transactionController.create(purchaseItemDtos, inputPembeli.getText());
+       purchaseItemDtos.clear();
+       reloadTables();
+       JOptionPane.showMessageDialog(
+           null,
+           "Transaksi Berhasil! Total Transaksi: " + total + "\nNama Pembeli: " + inputPembeli.getText(),
+           "Success",
+           JOptionPane.INFORMATION_MESSAGE
+       );
+       inputPembeli.setEnabled(false);
+       inputQuantity.setEnabled(false);
+       buttonAddChart.setEnabled(false);
+       buttonConfirm.setEnabled(false);
+       buttonClearChart.setEnabled(false);
     }//GEN-LAST:event_buttonConfirmActionPerformed
 
     private void buttonClearChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonClearChartActionPerformed
@@ -313,6 +337,11 @@ public class CashierView extends javax.swing.JFrame {
         purchaseItemDtos.clear();
         reloadTables();
     }//GEN-LAST:event_buttonClearChartActionPerformed
+
+    private void inputPembeliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputPembeliActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_inputPembeliActionPerformed
 
     /**
      * @param args the command line arguments
@@ -355,8 +384,10 @@ public class CashierView extends javax.swing.JFrame {
     private javax.swing.JButton buttonClearChart;
     private javax.swing.JButton buttonConfirm;
     private javax.swing.JPanel header;
+    private javax.swing.JTextField inputPembeli;
     private javax.swing.JTextField inputQuantity;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel labelNamaPembeli;
     private javax.swing.JLabel labelNamaProduk;
     private javax.swing.JTable productTable;
     private javax.swing.JScrollPane scrollPanelChart;

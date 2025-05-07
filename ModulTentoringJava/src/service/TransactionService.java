@@ -19,7 +19,7 @@ public class TransactionService {
     private final TransactionDetailDao transactionDetailDao = new TransactionDetailDao();
     private final ProductDao productDao = new ProductDao();
 
-    public String productPurchase(List<PurchaseItemDto> purchasedItems) {
+    public String productPurchase(List<PurchaseItemDto> purchasedItems, String nama) {
         try {
             Timestamp transactionDatetime = new Timestamp(System.currentTimeMillis());
             
@@ -33,8 +33,8 @@ public class TransactionService {
             Transaction transaction = new Transaction();
             transaction.setTransactionDate(transactionDatetime);
             transaction.setTotal(total);
-            transaction.setBuyer("buyer-dummy"); // Ini bisa diisi nama kalian
-            transaction.setCashier("cashier-dummy"); // Ini bisa diisi npm kalian
+            transaction.setBuyer(nama);
+            transaction.setCashier("cashier-dummy");
             
             int transactionId = transactionDao.create(DbConnection.CON, transaction);
 
@@ -84,4 +84,5 @@ public class TransactionService {
         BigDecimal quantity = new BigDecimal(purchasedItem.getQuantityPurchased());
         return price.multiply(quantity);
     }
+    
 }

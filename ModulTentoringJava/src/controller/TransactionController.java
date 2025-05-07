@@ -14,8 +14,10 @@ import service.TransactionService;
  */
 public class TransactionController {
     private final TransactionService transactionService = new TransactionService();
+    private String buyer;
     
-    public String create(List<PurchaseItemDto> items){
-        return transactionService.productPurchase(items);
+    public String create(List<PurchaseItemDto> items, String buyer){
+        this.buyer = buyer;
+        return transactionService.productPurchase(items, buyer);
     }
 }
